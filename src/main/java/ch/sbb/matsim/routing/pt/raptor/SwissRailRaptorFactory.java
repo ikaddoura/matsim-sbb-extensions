@@ -37,7 +37,6 @@ public class SwissRailRaptorFactory implements Provider<SwissRailRaptor> {
 
     private final Network network;
     private final PlansConfigGroup plansConfigGroup;
-    private final Population population;
     private final Map<String, Provider<RoutingModule>> routingModuleProviders;
 
     @Inject
@@ -52,7 +51,6 @@ public class SwissRailRaptorFactory implements Provider<SwissRailRaptor> {
         this.routeSelector = routeSelector;
         this.intermodalAE = intermodalAE;
         this.plansConfigGroup = plansConfigGroup;
-        this.population = population;
 
         SwissRailRaptorConfigGroup srrConfig = ConfigUtils.addOrGetModule(config, SwissRailRaptorConfigGroup.class);
         this.routingModuleProviders = new HashMap<>();
@@ -80,7 +78,7 @@ public class SwissRailRaptorFactory implements Provider<SwissRailRaptor> {
             neededRoutingModules.put(mode, module);
         }
         return new SwissRailRaptor(data, this.raptorParametersForPerson, this.routeSelector, this.intermodalAE,
-                this.plansConfigGroup.getSubpopulationAttributeName(), this.population.getPersonAttributes(), neededRoutingModules);
+                this.plansConfigGroup.getSubpopulationAttributeName(), neededRoutingModules);
     }
 
     private SwissRailRaptorData getData() {

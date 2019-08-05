@@ -50,20 +50,19 @@ public class SwissRailRaptor implements TransitRouter {
     private final RaptorRouteSelector defaultRouteSelector;
     private final RaptorIntermodalAccessEgress intermodalAE;
     private final String subpopulationAttribute;
-    private final ObjectAttributes personAttributes;
     private final Map<String, RoutingModule> routingModules;
 
     private boolean treeWarningShown = false;
 
     public SwissRailRaptor(final SwissRailRaptorData data, RaptorParametersForPerson parametersForPerson,
                            RaptorRouteSelector routeSelector, RaptorIntermodalAccessEgress intermodalAE) {
-        this(data, parametersForPerson, routeSelector, intermodalAE, null, null, null);
+        this(data, parametersForPerson, routeSelector, intermodalAE, null, null);
         log.info("SwissRailRaptor was initialized without support for subpopulations or intermodal access/egress legs.");
     }
 
     public SwissRailRaptor(final SwissRailRaptorData data, RaptorParametersForPerson parametersForPerson,
                            RaptorRouteSelector routeSelector, RaptorIntermodalAccessEgress intermodalAE,
-                           String subpopulationAttribute, ObjectAttributes personAttributes, Map<String, RoutingModule> routingModules) {
+                           String subpopulationAttribute, Map<String, RoutingModule> routingModules) {
         this.data = data;
         this.config = data.config;
         this.raptor = new SwissRailRaptorCore(data);
@@ -71,7 +70,6 @@ public class SwissRailRaptor implements TransitRouter {
         this.defaultRouteSelector = routeSelector;
         this.intermodalAE = intermodalAE;
         this.subpopulationAttribute = subpopulationAttribute;
-        this.personAttributes = personAttributes;
         this.routingModules = routingModules;
     }
 
@@ -97,7 +95,7 @@ public class SwissRailRaptor implements TransitRouter {
     private List<Leg> performRangeQuery(Facility fromFacility, Facility toFacility, double desiredDepartureTime, Person person, RaptorParameters parameters) {
         SwissRailRaptorConfigGroup srrConfig = parameters.getConfig();
 
-        Object attr = this.personAttributes.getAttribute(person.getId().toString(), this.subpopulationAttribute);
+        Object attr = person.getAttributes().getAttribute(this.subpopulationAttribute);
         String subpopulation = attr == null ? null : attr.toString();
         SwissRailRaptorConfigGroup.RangeQuerySettingsParameterSet rangeSettings = srrConfig.getRangeQuerySettings(subpopulation);
 
@@ -234,7 +232,6 @@ public class SwissRailRaptor implements TransitRouter {
         SwissRailRaptorConfigGroup srrCfg = parameters.getConfig();
         double x = facility.getCoord().getX();
         double y = facility.getCoord().getY();
-        String personId = person.getId().toString();
         List<InitialStop> initialStops = new ArrayList<>();
         for (IntermodalAccessEgressParameterSet paramset : srrCfg.getIntermodalAccessEgressParameterSets()) {
             double radius = paramset.getRadius();
@@ -251,7 +248,7 @@ public class SwissRailRaptor implements TransitRouter {
 
             boolean personMatches = true;
             if (personFilterAttribute != null) {
-                Object attr = this.personAttributes.getAttribute(personId, personFilterAttribute);
+                Object attr = person.getAttributes().getAttribute(personFilterAttribute);
                 String attrValue = attr == null ? null : attr.toString();
                 personMatches = personFilterValue.equals(attrValue);
             }
